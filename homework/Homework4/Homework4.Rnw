@@ -1,0 +1,154 @@
+\documentclass[]{article}
+
+\title{Homework 4}
+\author{Kelsey Iafrate}
+\usepackage{geometry}
+
+\geometry{margin=1in}
+
+\begin{document}
+
+\maketitle
+
+\SweaveOpts{concordance=TRUE}
+
+\begin{enumerate}
+
+\item
+
+\begin{enumerate}
+
+\item
+
+
+<<fig = TRUE>>=
+VACATION <- read.csv("~/Documents/Stat103/Data Sets/VACATION.csv")
+attach(VACATION)
+model <- lm(Price~Lot.size+Trees+Distance)
+plot.lm(model, which = 1)
+shapiro.test(model$residuals)
+@
+
+There does not appear to be a significant curve in the residuals, so the variance appears to be constant. The Shapiro-Wilk test outputs a p-value of ~0.1, so we can not reject that the residuals are normally distributed. Therefore, the model assumptions appear to be satisfied. 
+
+\item
+
+<<>>=
+summary(model)
+@
+
+The multiple R-squared is 24.25\% and the adjested R-squared is 20.19\%. This tells us that the variation in house price is not very well explained by the model. Only 20.19\% of the variation in house price can be explained by this original model
+
+\item
+
+The number of mature trees is definitely linearly related to the price of the house with a p-value of 0.0045. A house's distance from the lake is somewhat linearly related to the price since it has a p-value of 0.0577. We cannot conclude that lot size is linearly related to the house price. 
+
+\item
+
+<<>>=
+library(MASS)
+step <- stepAIC(model, way='both')
+newModel <- lm(Price~Trees+Distance)
+summary(newModel)         
+@
+
+The stepAIC function determined that removing only lot size gave a better model. 
+
+\item
+
+The average price of homes of equal distance from the lake will increase by \$767 for every additional mature tree on the lot. The average price of a home with a fixed number of mature trees on the lot will decrease on average by \$433 for every foot farther it is away from the lake.
+
+\item
+
+<<>>=
+newData <- data.frame("Lot.size" = 40,"Trees" = 50, "Distance" = 75)
+predict(model, newData,interval = "prediction")
+@
+
+We predict with 95\% confidence a 40,000 square foot house with 50 mature trees that is 75 feet from the lake to sell for between \$2,795 and \$167,107.
+
+\item
+
+<<>>=
+predict(model, newData,interval = "confidence")
+@
+
+We are 95\% confident that on average 40000 square foot houses with 50 mature trees that are 75 feet from the lake will sell for between \$69,126 and \$100,776.
+
+\end{enumerate}
+
+\item
+
+\begin{enumerate}
+
+\item
+
+<<fig = TRUE>>=
+DRYWALL <- read.csv('~/Documents/Stat103/Data Sets/DRYWALL.csv')
+attach(DRYWALL)
+
+model <- lm(Drywall~Permits+Mortgage+A.Vacancy+O.Vacancy)
+
+plot.lm(model, which = 1)
+shapiro.test(model$residuals)
+@
+
+There appears to be a curve in the residuals, which implies the variance may not be constant. However, the curve does not deviate away from zero too much, so I will choose to accept the assumption that the residual variance is constant.
+
+The Shapiro-Wilk test determines that we cannot reject that the residuals are normally distributed, so this assumption is satisfied.
+
+\item
+
+<<>>=
+summary(model)
+@
+
+The multiple R-squared is 89.35\%, and the adjusted R-squared, which is more appropriate for this model, is 87.11\%. This tells us that 87.11\% of the variation in the demand for dry wall can be explained by the model. This indicates the model will precicely predict the demand for drywall.
+
+\item
+
+The only explanatory variable that is linearly related to the demand for drywall is the number of building permits issued in this model.
+
+\item
+<<>>=
+stepAIC(model, direction="both")
+
+otherModel <- lm(Drywall~Permits)
+stepAIC(otherModel, scope = ~.+Mortgage+A.Vacancy+O.Vacancy, direction="forward")
+
+newModel <- lm(Drywall~Permits+A.Vacancy)
+
+@
+
+The stepAIC function determined that the only two significant explanatory variables are the number of building permits sold and the apartment vacancy rate. Even here, the A.Vacancy rate has a very high p-value of 0.105. I did a foreward stepAIC analysis and got the same model. I also did an experiment where I did a foreward stepAIC without apartment vacancy to see if R was simply going to add another explanatory variable no matter what. It did not. I find it odd that R's default step function would add in an explanatory variable with such a high p-value. Is there an explanation for this?
+
+\item
+
+<<>>=
+summary(newModel)
+@
+
+The model predicts that with apartment vacancy held constant, sales of drywall will go up by 475 sheets on average for every additional building permit issued. The model predicts 1000 fewer sheets of dry wall will be sold on average for every percent raise in appartment vacancy while the number of permits being issued remains the same. 
+
+\item
+
+For the original multiple R-squared is 89.35\%, and the adjusted R-squared, which is more appropriate for this model, is 87.11\%.
+For the new model multiple R-squared is 88.54\%, and the adjusted R-squared, which is more appropriate for this model, is 87.45\%.
+Though the multiple R-squared went down for the new model compared to the original, we get a slight gain of .34\% in the adjusted R-squared for the new model.
+
+\item
+
+<<>>=
+newData <- data.frame("Permits" = 50, "Mortgage" = 8.5, "A.Vacancy" = 4.2, 
+                      "O.Vacancy" = 14)
+predict.lm(model,newData, interval = "prediction")
+@
+
+Next month, if 50 building permits are given, the mortgage rate is 8.5\%, apartment vacancy is at 4.2\%, and office vacancy is at 14\%, we predict with 95\% confidence that between 15636 and 33328 sheets of dry wall will be sold.
+
+\end{enumerate}
+
+
+\end{enumerate}
+
+\end{document}
