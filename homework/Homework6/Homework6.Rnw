@@ -1,0 +1,142 @@
+\documentclass{article}
+
+\title{Homework 5}
+\author{Kelsey Iafrate}
+\usepackage{geometry}
+
+\geometry{margin = 1in}
+
+\begin{document}
+
+\maketitle
+
+\SweaveOpts{concordance=TRUE}
+
+\begin{enumerate}
+
+\item
+
+<<>>=
+bacteria <- read.csv("~/Documents/Stat103/Data Sets/Bacteria.csv", header=TRUE)
+attach(bacteria)
+pairwise.t.test(Bacteria,Location)
+fit3 <- aov(Bacteria~Beach*Location)
+summary(fit3)
+@
+
+Since there is not evidence for interaction we should take them out of the model. Values in a and b are for updated model. The decision, however, is unchanged.
+
+<<>>=
+fit <- aov(Bacteria~Beach+Location)
+@
+
+\begin{enumerate}
+
+\item
+
+$H_0$: There is no difference in amount of bacteria between types of beaches
+
+$H_A$: There is a difference between some beaches
+
+P-value: 0.000313
+
+Decision: Reject the null. There is significant evidence there is some difference between bacteria levels at some beaches
+
+\item
+
+$H_0$: There is no difference in amount of bacteria between different locations.
+
+$H_A$: There is a difference in levels of bacteria between some locations.
+
+P-value: 2.1e-07 (i.e. super close to zero)
+
+Decision: Reject the null, there are differences in bacteria level between some beaches.
+
+\item
+
+$H_0$: There is no difference in bacteria levels between treatments.
+
+$H_A$: There is a difference in bacteria levels between some treatments.
+
+P-value: 0.30471
+
+Decision: Fail to reject the null hypothesis. We cannot conclude there is any difference between treatments.
+
+\item
+
+<<fig=TRUE>>=
+par(mfrow = c(1,2), pin = c(2,3), cex = 0.7)
+(TukeyHSD(fit,"Beach"))
+(TukeyHSD(fit, "Location"))
+@
+
+The plots in R are different than stat graphics. For some reason the command to plot the confidence intervals doesn't work, and we saw in my homework 5. The TukeyHSD command gives intervals for the differences. So if the interval does not capture 0, we can conclude there is a significant difference in means between the two factors. 
+
+From the first graph above we can see the difference between the sound and bay is not significant, but the ocean has significantly fewer bacteria on average that both the sound and bay.
+
+From the second graph, we see none of the intervals capture zero, so every difference is significant. So Eastern beaches have the fewest bacteria and Western beaches have the most bacteria, with Central being between the two. 
+
+\end{enumerate}
+
+\item
+
+\begin{enumerate}
+
+\item
+
+The response variable is repair time in minutes.
+
+\item
+
+The factors are the service center number and the brand.
+
+\item
+
+For service center there are levels 1, 2, and 3.
+
+For brand there are Toshiba, Panasonic, and Sony.
+
+\item
+
+<<>>=
+VCR <- read.csv("~/Documents/Stat103/Data Sets/VCR.csv", header=TRUE)
+attach(VCR)
+VCR$Center <- as.factor(VCR$Center)
+timeFit <- aov(Time~Center+Brand+Center*Brand)
+anova(timeFit)
+@
+
+There is not significant evidence that there is a interaction due to service center and VCR brand.
+
+\item
+
+<<>>=
+timeFit2 <- aov(Time ~ Center+Brand)
+summary(timeFit2)
+@
+
+There is not enough evidence to claim there is an effect due to service centers.
+
+\item
+
+<<>>=
+timeFit3 <- aov(Time~Brand)
+summary(timeFit3)
+@
+
+There is an effect on repair time due to VCR brand since the P-value is 0.002049.
+
+\item
+
+<<fig=TRUE>>=
+par(pin=c(4,3), cex = 0.8)
+plot(TukeyHSD(timeFit3))
+@
+
+The service should conclude that Sony decisively has the highest repair time, and that there is not statistical significance between Toshiba and Panasonic. 
+
+\end{enumerate}
+
+\end{enumerate}
+
+\end{document}
