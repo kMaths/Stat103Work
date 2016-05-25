@@ -1,0 +1,54 @@
+\documentclass{article}
+
+\title{Homework 5}
+\author{Kelsey Iafrate}
+\usepackage{geometry}
+
+\geometry{margin = 1in}
+
+\begin{document}
+
+\maketitle
+
+\SweaveOpts{concordance=TRUE}
+
+\begin{enumerate}
+
+\item
+<<>>=
+batteries <- read.csv("~/Documents/Stat103/Data Sets/batteries.csv", header=FALSE)
+fit <- lm(batteries$V2~batteries$V1)
+anova(fit)
+@
+
+Since p = 0.03252, we may reject the null and conclude some brands of batterieries differ in lifetimes.
+
+<<>>=
+summary(fit)
+confint.default(fit, level = .95)
+pairw.anova(batteries$V2, batteries$V1, conf.level = 0.95, method = "tukey")
+fit2<-aov(batteries$V2~batteries$V1)
+summary(fit2)
+confint(fit2)
+plot(TukeyHSD(fit2))
+par(mfrow = c(1,1), pin = c(1,1), cex = 1)
+@
+
+We can conclude with 95\% confidence that Brand 2 has a shorter lifetime than Brand 1.
+
+\item
+
+<<>>=
+price <- read.csv("~/Documents/Stat103/Data Sets/ToyPrice.csv", header=FALSE)
+fit <- lm(price$V1~price$V2)
+anova(fit)
+@
+
+Since p > 0.06 > 0,05, we fail to conclude with 95\% confidence that there are any differeneces in price between discount stores, specialty stores, or varienty stores.
+
+\end{enumerate}
+
+
+
+
+\end{document}
